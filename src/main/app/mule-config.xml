@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns:client="http://www.mulesoft.org/schema/mule/client"
+      xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"
+      xmlns:management="http://www.mulesoft.org/schema/mule/management"
+      xmlns:mule-xml="http://www.mulesoft.org/schema/mule/xml"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xmlns:util="http://www.springframework.org/schema/util"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
+        http://www.mulesoft.org/schema/mule/client http://www.mulesoft.org/schema/mule/client/current/mule-client.xsd
+        http://www.mulesoft.org/schema/mule/management http://www.mulesoft.org/schema/mule/management/current/mule-management.xsd
+        http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-current.xsd">
+
+    <description>
+        Gather metrics from Mule and sends them to visualisation services depending on the configuration.
+    </description>
+
+    <custom-agent name="jolokia-agent" class="org.jolokia.mule.JolokiaMuleAgent">
+        <spring:property name="port" value="${jolokia.port}"/>
+    </custom-agent>
+    <management:jmx-server/>
+
+    <spring:beans>
+        <context:property-placeholder location="mule-metrics.properties"/>
+        <util:properties id="properties" location="mule-metrics.properties"/>
+
+        <spring:bean id="metrics" scope="singleton" class="nz.org.geonet.mule.Metrics">
+            <spring:property name="collector">
+                <spring:ref local="collector"/>
+            </spring:property>
+            <spring:property name="sender">
+                <spring:ref local="senderFactory"/>
+            </spring:property>
+        </spring:bean>
+
+        <spring:bean name="collector" class="nz.org.geonet.mule.metrics.collector.MuleCollector">
+            <spring:constructor-arg index="0">
+                <spring:ref local="client"/>
+            </spring:constructor-arg>
+            <spring:constructor-arg index="1" value="${perAppMetrics}" type="boolean">
+            </spring:constructor-arg>
+        </spring:bean>
+
+        <spring:bean name="client" class="nz.org.geonet.mule.metrics.collector.MetricsClient">
+            <spring:constructor-arg value="http://localhost:${jolokia.port}/jolokia/"/>
+        </spring:bean>
+
+        <spring:bean name="senderFactory" class="nz.org.geonet.mule.metrics.sender.SenderFactory"
+                     factory-method="getSender">
+            <spring:constructor-arg>
+                <spring:ref local="properties"/>
+            </spring:constructor-arg>
+        </spring:bean>
+    </spring:beans>
+
+    <flow name="main">
+        <quartz:inbound-endpoint repeatInterval="${collection.interval.millis}" startDelay="3000"
+                                 jobName="metricsGenerator">
+            <quartz:event-generator-job/>
+        </quartz:inbound-endpoint>
+
+        <component>
+            <spring-object bean="metrics"/>
+        </component>
+    </flow>
+
+</mule>
