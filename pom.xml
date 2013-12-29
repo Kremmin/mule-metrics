@@ -6,7 +6,7 @@
     <artifactId>mule-metrics</artifactId>
     <packaging>mule</packaging>
     <name>Mule Metrics Application</name>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <description />
 
     <properties>
