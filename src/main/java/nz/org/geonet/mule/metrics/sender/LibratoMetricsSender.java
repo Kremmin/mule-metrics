@@ -68,7 +68,7 @@ public class LibratoMetricsSender implements Sender {
                     content(new StringContentProvider(jsonString(source, serverType, metrics)), "application/json").timeout(10, TimeUnit.SECONDS).send();
 
             if (response.getStatus() == 200) {
-                log.info("Librato Metrics Sender OK");
+                log.debug("Librato Metrics Sender OK");
             } else {
                 log.error("Librato Metrics Sender code: " + response.getStatus());
                 log.error("Response content: " + response.getContentAsString());

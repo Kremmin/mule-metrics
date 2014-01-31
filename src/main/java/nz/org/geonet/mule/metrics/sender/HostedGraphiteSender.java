@@ -57,7 +57,7 @@ public class HostedGraphiteSender implements Sender {
                     content(new StringContentProvider(graphiteString(source, serverType, metrics))).timeout(10, TimeUnit.SECONDS).send();
 
             if (response.getStatus() == 202) {
-                log.info("Hosted Graphite Sender OK");
+                log.debug("Hosted Graphite Sender OK");
             } else {
                 log.error("Graphite Sender code: " + response.getStatus());
                 log.error("Response content: " + response.getContentAsString());
