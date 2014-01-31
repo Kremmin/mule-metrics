@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 public class MuleMetricsTestCase extends FunctionalTestCase {
     protected String getConfigResources() {
-        return "mule-config.xml";
+        return "src/main/app/mule-config.xml";
     }
 
     /**
