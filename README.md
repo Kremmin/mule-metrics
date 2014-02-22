@@ -1,5 +1,7 @@
 # Mule Metrics
 
+[![Build Status](https://snap-ci.com/elZXlVG6g4wDiDucm5MaFtyRqxDMg1wAdVVkW0ZoH60/build_image)](https://snap-ci.com/projects/GeoNet/mule-metrics/build_history)
+
 Mule application to provide metrics for the JVM running the Mule server and applications running in it.
 
 * Requires Java 7+ (for the Jetty http client).
