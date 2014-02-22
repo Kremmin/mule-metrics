@@ -13,6 +13,8 @@ task wrapper(type: Wrapper) {
 }
 
 repositories {
+    maven { url "http://repository.muleforge.org" }
+    maven { url "http://dist.codehaus.org/mule/dependencies/maven2" }
     mavenCentral()
 }
 
@@ -65,17 +67,21 @@ dependencies {
     )
 }
 
+def publishUrl = 'https://geonet.artifactoryonline.com/geonet/public-snapshots'
+
+if (System.getProperty("isRelease") && "true".equals(System.getProperty("isRelease"))) {
+    publishUrl = 'https://geonet.artifactoryonline.com/geonet/public-releases'
+}
+
 publishing {
     publications {
-        maven(MavenPublication) {
-            artifact assembleMule {
-                extension 'zip'
-            }
+        mavenJava(MavenPublication) {
+            from components.java
         }
     }
     repositories {
         maven {
-            url geonetPublicReleases
+            url 'https://geonet.artifactoryonline.com/geonet/public-releases'
             credentials {
                 username geonetUser
                 password geonetPassword
