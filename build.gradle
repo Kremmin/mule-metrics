@@ -1,8 +1,19 @@
-apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'build-version'
+apply plugin: 'mule'
 
 group = 'nz.org.geonet'
+
+mule {
+    version = '3.4.0'
+    repos = true
+}
+
+// Make tags like 'mule-3.4.0-release-1.0.0'
+buildVersion {
+    releaseTagPattern = "^mule-${mule.version}-release-(\\d+\\.\\d+\\.\\d)"
+}
+
 version = buildVersion.version
 
 sourceCompatibility = 1.7
@@ -13,13 +24,12 @@ task wrapper(type: Wrapper) {
 }
 
 repositories {
-    maven { url "http://repository.muleforge.org" }
-    maven { url "http://dist.codehaus.org/mule/dependencies/maven2" }
     mavenCentral()
 }
 
 buildscript {
     repositories {
+    	mavenLocal()
         maven {
             url 'https://geonet.artifactoryonline.com/geonet/public-releases'
         }
@@ -27,16 +37,8 @@ buildscript {
     }
     dependencies {
         classpath group: 'nz.org.geonet', name: 'gradle-build-version-plugin', version: '1.0.2'
+         classpath group: 'nz.org.geonet', name: 'gradle-mule-plugin', version: '1.0.1'
     }
-}
-
-configurations {
-    provided
-}
-
-sourceSets {
-    test.compileClasspath += configurations.provided
-    test.runtimeClasspath += configurations.provided
 }
 
 dependencies {
@@ -44,44 +46,22 @@ dependencies {
     compile group: 'org.jolokia', name: 'jolokia-client-java', version:'1.1.5'
     compile group: 'org.eclipse.jetty', name: 'jetty-client', version:'9.0.3.v20130506'
     compile group: 'com.google.code.gson', name: 'gson', version:'2.2.4'
-
-    compile( 
-    'log4j:log4j:1.2.17'
-    )
-
-    testCompile group: 'org.mule.tests', name: 'mule-tests-functional', version:'3.4.0'
-    testCompile group: 'mockobjects', name: 'mockobjects-core', version:'0.09'
+    compile group: 'log4j', name: 'log4j', version:'1.2.17'
 
     testCompile group: 'org.mortbay.jetty', name: 'jetty', version:'6.1.26'
-
-    provided('org.mule:mule-core:3.4.0',
-            'org.mule.transports:mule-transport-file:3.4.0',
-            'org.mule.transports:mule-transport-jms:3.4.0',
-            'org.mule.transports:mule-transport-jdbc:3.4.0',
-            'org.mule.transports:mule-transport-quartz:3.4.0',
-            'org.mule.transports:mule-transport-vm:3.4.0',
-            'org.mule.modules:mule-module-client:3.4.0',
-            'org.mule.modules:mule-module-spring-config:3.4.0',
-            'org.mule.modules:mule-module-xml:3.4.0',
-            'org.mule.modules:mule-module-management:3.4.0'
-    )
-}
-
-def publishUrl = 'https://geonet.artifactoryonline.com/geonet/public-snapshots'
-
-if (System.getProperty("isRelease") && "true".equals(System.getProperty("isRelease"))) {
-    publishUrl = 'https://geonet.artifactoryonline.com/geonet/public-releases'
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
+        maven(MavenPublication) {
+            artifact assembleMule {
+                extension 'zip'
+            }
         }
     }
     repositories {
         maven {
-            url 'https://geonet.artifactoryonline.com/geonet/public-releases'
+            url "http://geonet.artifactoryonline.com/geonet/mule-${mule.version}-staging"
             credentials {
                 username geonetUser
                 password geonetPassword
@@ -89,52 +69,3 @@ publishing {
         }
     }
 }
-
-/** mule build tasks */
-/** copy jars files */
-task copyLibs( type: Copy ) {
-    into "$buildDir/temp/lib"
-    from configurations.runtime
-}
-
-/** copy classes, resources files */
-task copyResources( type: Copy ) {
-    into "$buildDir/temp/classes/"
-    from ('src/main/resources/') {
-        include '*.*'
-    }
-    from ("$buildDir/classes/main/") {
-        include '**'
-    }
-}
-
-/** assemble app for mule */
-task assembleMule(type:Zip ) {
-    destinationDir file("$buildDir/libs/")
-    archiveName project.name + '-' + "$version" + '.zip'
-    from ('src/main/app/') {
-        include '*.xml'
-    }
-    from ("$buildDir/temp/") {
-        include 'classes/'
-        include 'lib/'
-    }
-
-    doLast {
-        delete "$buildDir/temp/"
-    }
-}
-
-/** install mule */
-task installMule(type: Copy ) {
-    into "$System.env.MULE_HOME/apps/"
-    from ("$buildDir/libs/") {
-        include '*.zip'
-    }
-}
-
-/** task dependencies */
-copyResources.dependsOn(compileJava, copyLibs)
-assembleMule.dependsOn(copyResources)
-assemble.dependsOn(assembleMule)
-installMule.dependsOn(assembleMule)
