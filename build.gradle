@@ -9,9 +9,8 @@ mule {
     repos = true
 }
 
-// Make tags like 'mule-3.4.0-release-1.0.0'
 buildVersion {
-    releaseTagPattern = "^mule-${mule.version}-release-(\\d+\\.\\d+\\.\\d)"
+    integrationVersion = true
 }
 
 version = buildVersion.version
@@ -36,8 +35,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'nz.org.geonet', name: 'gradle-build-version-plugin', version: '1.0.2'
-         classpath group: 'nz.org.geonet', name: 'gradle-mule-plugin', version: '1.0.1'
+        classpath group: 'nz.org.geonet', name: 'gradle-build-version-plugin', version: '1.0.4'
+         classpath group: 'nz.org.geonet', name: 'gradle-mule-plugin', version: '1.0.4'
     }
 }
 
@@ -51,6 +50,12 @@ dependencies {
     testCompile group: 'org.mortbay.jetty', name: 'jetty', version:'6.1.26'
 }
 
+def publishUrl = "http://geonet.artifactoryonline.com/geonet/mule-${mule.version}-staging"
+
+if (System.getProperty("isRelease") && "true".equals(System.getProperty("isRelease"))) {
+    publishUrl = "http://geonet.artifactoryonline.com/geonet/mule-${mule.version}-production"
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -61,7 +66,7 @@ publishing {
     }
     repositories {
         maven {
-            url "http://geonet.artifactoryonline.com/geonet/mule-${mule.version}-staging"
+            url publishUrl
             credentials {
                 username geonetUser
                 password geonetPassword
