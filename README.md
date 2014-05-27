@@ -25,8 +25,8 @@ Send metrics to Hosted Graphite (https://www.hostedgraphite.com) every twenty se
 
 * Create a Hosted Graphite account https://www.hostedgraphite.com
 * Create an api access key for the account.
-* Copy the properties file from this project `src/main/resources/mule-metrics.properties` to the conf dir in your Mule installation e.g., `$MULE_HOME/conf/`.
-* Edit `$MULE_HOME/conf/mule-metrics.properties`, uncomment and set the `hostedgraphite.api.key=XXX` to the one for your account.
+* Copy the properties file from this project `src/main/resources/mule-metrics.properties` to the /etc/mule.
+* Edit `/etc/mule/mule-metrics.properties`, uncomment and set the `hostedgraphite.api.key=XXX` to the one for your account.
 * Download a release of this application (https://github.com/GeoNet/mule-metrics/releases) and deploy it to your Mule server.
 * Log into Hosted Graphite and create dashboards (it can take a few minutes for metrics to appear in Hosted Grpahite for the first time).
 
@@ -37,8 +37,8 @@ Send metrics to Librato Metrics (https://metrics.librato.com/) every twenty seco
 
 * Create a Librato Metrics account https://metrics.librato.com/
 * Create a key with Record Access for the Librato Metrics account.
-* Copy the properties file from this project `src/main/resources/mule-metrics.properties` to the conf dir in your Mule installation e.g., `$MULE_HOME/conf/`
-* Edit `$MULE_HOME/conf/mule-metrics.properties`, uncomment and set Librato user and api key values to the ones you just created.
+* Copy the properties file from this project `src/main/resources/mule-metrics.properties` to the conf dir in your Mule installation e.g., `/etc/mule`
+* Edit `/etc/mule/mule-metrics.properties`, uncomment and set Librato user and api key values to the ones you just created.
 
 ```
   librato.user=some.user@mail.com
@@ -103,7 +103,7 @@ These values are per Mule application values for the collection interval e.g., f
 
 ### Properties file
 
-The following properties can also be set in `$MULE_HOME/conf/mule-metrics.properties`.
+The following properties can also be set in `/etc/mule/mule-metrics.properties`.
 
 * jolokia.port=8899 - the port that Jolokia communicates on (see also Security below).
 * collection.interval.millis=20000 - the interval that metrics are collected at.

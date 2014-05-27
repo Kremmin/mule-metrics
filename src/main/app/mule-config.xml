@@ -28,8 +28,8 @@
     <management:jmx-server/>
 
     <spring:beans>
-        <context:property-placeholder location="mule-metrics.properties"/>
-        <util:properties id="properties" location="mule-metrics.properties"/>
+        <context:property-placeholder location="file:/etc/mule/mule-metrics.properties"/>
+        <util:properties id="properties" location="file:/etc/mule/mule-metrics.properties"/>
 
         <spring:bean id="metrics" scope="singleton" class="nz.org.geonet.mule.Metrics">
             <spring:property name="collector">
