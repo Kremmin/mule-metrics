@@ -28,8 +28,8 @@
     <management:jmx-server/>
 
     <spring:beans>
-        <context:property-placeholder location="file:/etc/mule/mule-metrics.properties"/>
-        <util:properties id="properties" location="file:/etc/mule/mule-metrics.properties"/>
+        <context:property-placeholder order="0" ignore-unresolvable="true" location="mule-metrics.properties"/>
+        <context:property-placeholder order="-1" ignore-resource-not-found="true" ignore-unresolvable="true" location="file:/etc/mule/mule-metrics.properties"/>
 
         <spring:bean id="metrics" scope="singleton" class="nz.org.geonet.mule.Metrics">
             <spring:property name="collector">
@@ -53,10 +53,9 @@
         </spring:bean>
 
         <spring:bean name="senderFactory" class="nz.org.geonet.mule.metrics.sender.SenderFactory"
-                     factory-method="getSender">
-            <spring:constructor-arg>
-                <spring:ref local="properties"/>
-            </spring:constructor-arg>
+                     factory-method="getLibratoSender">
+                <spring:constructor-arg value="${librato.user}"/>
+                <spring:constructor-arg value="${librato.api.key}"/>
         </spring:bean>
     </spring:beans>
 

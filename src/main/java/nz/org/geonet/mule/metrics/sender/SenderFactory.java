@@ -39,4 +39,14 @@ public class SenderFactory {
 
         return sender;
     }
+
+    /**
+     * Creates Sender configured based on properties.
+     *
+     * @return a Sender
+     * @throws SenderException if can't find enough properties to configure a Sender.
+     */
+    public static Sender getLibratoSender(String libratoUser, String libratoApiKey) throws SenderException {
+            return new LibratoMetricsSender(libratoUser, libratoApiKey);
+    }
 }
